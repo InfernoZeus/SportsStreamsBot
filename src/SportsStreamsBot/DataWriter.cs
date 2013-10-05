@@ -43,6 +43,19 @@ namespace SportsStreamsBot
 				Encoding = Encoding.UTF8
 			};
 
+			// quick and dirty, we're likely to miss something here, but the way python decodes our self post, it will break if there are ampersands
+			// we may run into other characters we have to manually look for...
+			foreach (var game in games)
+			{
+				game.Summary = game.Summary.Replace("&", "and");
+				// god dammit python.
+				// python doesn't like empty tags like "<summary />"
+				if (string.IsNullOrEmpty(game.Summary))
+				{
+					game.Summary = "No information available";
+				}
+			}
+
 			using (var textWriter = new StringWriter())
 			{
 				using (var xmlWriter = XmlWriter.Create(textWriter, settings))

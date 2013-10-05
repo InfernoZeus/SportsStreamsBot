@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using System.Xml;
 
 namespace SportsStreamsBot.Data
 {
@@ -11,10 +12,10 @@ namespace SportsStreamsBot.Data
 	public class Game
 	{
 		[XmlAttribute("id")]
-		public string GameID { get; set; }
+		public int GameID { get; set; }
 
-		[XmlAttribute("month")]
-		public string Month { get; set; }
+		[XmlAttribute("monthId")]
+		public int MonthID { get; set; }
 		
 		[XmlElement("utcStart")]
 		public string UtcStartSTring
@@ -26,8 +27,23 @@ namespace SportsStreamsBot.Data
 		[XmlIgnore]
 		public DateTime UtcStart { get; set; }
 
-		[XmlElement("summary")]
+		[XmlIgnore]
 		public string Summary { get; set; }
+
+		[XmlText]
+		[XmlElement("summary")]
+		public XmlNode[] CDataContent
+		{
+			get
+			{
+				var dummy = new XmlDocument();
+				return new XmlNode[] { dummy.CreateCDataSection(Summary) };
+			}
+			set
+			{
+				throw new NotSupportedException();
+			}
+		}
 
 		[XmlElement("homeTeam")]
 		public Team HomeTeam { get; set; }

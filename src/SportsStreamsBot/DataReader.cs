@@ -63,8 +63,9 @@ namespace SportsStreamsBot
 				// at least a config setting makes this a bit less ugly should someone else run this some day...
 				gameTimeEastern = gameTimeEastern.AddHours(offsetFromEasternTime);
 
-				var month = data[2];
-				var gameId = data[3];
+				var seasonId = int.Parse(data[0]);
+				var monthId = int.Parse(data[2]);
+				var gameId = int.Parse(data[3]);
 				var homeStreamName = data[6];
 				var awayStreamName = data[7];
 				var homeCity = data[8];
@@ -72,7 +73,7 @@ namespace SportsStreamsBot
 				var streamUrl = data[11];
 				var feedType = (Stream.FeedTypes)Enum.Parse(typeof(Stream.FeedTypes), data[12], true);
 
-				var stream = new Stream(gameTimeEastern, homeStreamName, awayStreamName, homeCity, awayCity, streamUrl, feedType, gameId, month);
+				var stream = new Stream(gameTimeEastern, homeStreamName, awayStreamName, homeCity, awayCity, streamUrl, feedType, gameId, monthId);
 
 				if (!streams.ContainsKey(stream.Key))
 				{
@@ -99,13 +100,13 @@ namespace SportsStreamsBot
 
 				var game = new Game();
 				game.GameID = gameData.GameID;
-				game.Month = gameData.Month;
+				game.MonthID = gameData.MonthID;
 				game.UtcStart = gameData.GameTimeEastern.ToUniversalTime();
 				game.HomeTeam.City = gameData.HomeCity;
 				game.HomeTeam.StreamName = gameData.HomeStreamName;
 				game.AwayTeam.City = gameData.AwayCity;
 				game.AwayTeam.StreamName = gameData.AwayStreamName;
-				game.Summary = summaryDownloader.GetGameSummary(gameData.Month, gameData.GameID);
+				game.Summary = summaryDownloader.GetGameSummary(gameData.GameTimeEastern, gameData.MonthID, gameData.GameID);
 
 				if (homeStream != null)
 					game.HomeTeam.Server = GetServerNumberFromUrl(homeStream.StreamUrl);

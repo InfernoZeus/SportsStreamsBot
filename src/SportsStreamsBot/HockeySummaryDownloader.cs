@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HtmlAgilityPack;
-using Fizzler.Systems.HtmlAgilityPack;
+using System.Net;
 
 namespace SportsStreamsBot
 {
@@ -26,26 +26,19 @@ namespace SportsStreamsBot
 
 			var document = new HtmlWeb().Load(url);
 
-			var paragraphs = document.DocumentNode.QuerySelectorAll("p b").ToList();
+			var bigStoryNode = document.DocumentNode.SelectSingleNode("//div[@id='wideCol']//p[contains(., 'Big story:')]");
 
-			
-			foreach (var paragraph in paragraphs)
+			if (bigStoryNode != null)
 			{
-				// look for the "big story" section
-				if (paragraph.InnerText.ToLower().Trim() == "big story:")
+				// null safety in case they change the format
+				if (bigStoryNode.ParentNode.ChildNodes.Count >= 2)
 				{
-					// null safety in case they change the format
-					if (paragraph.ParentNode.ChildNodes.Count < 2)
-					{
-						// bail out, something is wrong.
-						break;
-					}
-
 					// format avoids possible NPE if innertext is null.
-					var bigStory = string.Format("{0}", paragraph.ParentNode.InnerText);
+					var bigStory = string.Format("{0}", bigStoryNode.InnerText);
 					// remove the caption
 					var colonIndex = bigStory.IndexOf(":");
 					bigStory = bigStory.Substring(colonIndex + 1).Trim();
+					bigStory = WebUtility.HtmlDecode(bigStory);
 
 					// we're done here
 					return bigStory;
